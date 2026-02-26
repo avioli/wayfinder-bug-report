@@ -62,4 +62,12 @@ class WayfinderBugController extends Controller
     {
         //
     }
+
+    /**
+     * Demonstrate a "bug-fix" for Wayfinder when the param uses snake_case
+     */
+    public function bugFix(WayfinderBug $wayfinder_bug)
+    {
+        //
+    }
 }

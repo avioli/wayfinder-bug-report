@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WayfinderBugController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -19,5 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::resource('wayfinder-bugs', WayfinderBugController::class);
+
+Route::get('wayfinder-bugs/{wayfinder_bug}/bugfix', [WayfinderBugController::class, 'bugFix'])
+    ->name('wayfinder-bugs.bugFix');
 
 require __DIR__.'/settings.php';
