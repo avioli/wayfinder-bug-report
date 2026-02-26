@@ -4,7 +4,14 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
 Route::inertia('/', 'Welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
+    'canRegister' => fn() => Features::enabled(Features::registration()),
+    'phpVersion' => PHP_VERSION,
+    'laravelVersion' => fn() => app()->version(),
+    'wayfinderVersion' => fn() => dirname(__DIR__).'/composer.lock'
+        |> file_get_contents(...)
+        |> json_decode(...)
+        |> (fn($obj) => collect($obj->packages)->firstWhere('name', 'laravel/wayfinder'))
+        |> (fn($obj) => substr($obj->version, 1))
 ])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {

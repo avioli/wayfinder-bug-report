@@ -5,6 +5,9 @@ import { dashboard, login, register } from '@/routes';
 withDefaults(
     defineProps<{
         canRegister: boolean;
+        phpVersion?: string;
+        laravelVersion?: string;
+        wayfinderVersion?: string;
     }>(),
     {
         canRegister: true,
@@ -152,6 +155,11 @@ withDefaults(
                                 Deploy now
                             </a>
                         </li>
+                    </ul>
+                    <ul class="mt-6 text-[#706f6c] dark:text-[#A1A09A]">
+                        <li>PHP version: {{ phpVersion }}</li>
+                        <li>Laravel version: {{ laravelVersion }}</li>
+                        <li>WayFinder version: {{ wayfinderVersion }}</li>
                     </ul>
                 </div>
                 <div
