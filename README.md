@@ -1,0 +1,54 @@
+# Wayfinder doesn't resolve camelCase route handler parameters
+
+## Description
+
+When a route handler uses a parameter variable that uses camelCase - the resulting route type does not include the Model's key name when generated.
+
+
+## Required software
+
+ - PHP version: 8.5.3
+ - Laravel version: 12.53.0
+ - WayFinder version: 0.1.14
+
+
+## Steps to reproduce:
+
+```sh
+# make sure to have php, composer, laravel/installer, and npm pre-installed
+laravel new wayfinder-bug-report --vue -n
+cd wayfinder-bug-report
+npm install
+php artisan make:model -cmr WayfinderBug # A model with a resource-controller and a migration
+npm run build
+```
+
+Review `./resources/js/routes/wayfinder-bugs/index.ts` and every handler that takes `wayfinder_bug` as a route param only handles a string or number value.
+
+```ts
+/**
+* @see \App\Http\Controllers\WayfinderBugController::show
+* @see app/Http/Controllers/WayfinderBugController.php:37
+* @route '/wayfinder-bugs/{wayfinder_bug}'
+*/
+export const show = (args: { wayfinder_bug: string | number } | [wayfinder_bug: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+```
+
+Change any handler's parameter from `$wayfinderBug` to `$wayfinder_bug` and run `npm run build` - now that route handler also takes an object with an `id`, since the model and its key were resolved correctly.
+
+I've added a `bugFix` route handler to demonstrate. The resulting wayfinder route has the expected signature:
+
+```ts
+/**
+* @see \App\Http\Controllers\WayfinderBugController::bugFix
+* @see app/Http/Controllers/WayfinderBugController.php:42
+* @route '/wayfinder-bugs/{wayfinder_bug}/bugfix'
+*/
+export const bugFix = (args: { wayfinder_bug: string | number | { id: string | number } } | [wayfinder_bug: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: bugFix.url(args, options),
+    method: 'get',
+})
+```
