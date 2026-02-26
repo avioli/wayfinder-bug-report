@@ -14,6 +14,16 @@ When a route handler uses a parameter variable that uses camelCase - the resulti
 
 ## Steps to reproduce:
 
+Reproduction repo: https://github.com/avioli/wayfinder-bug-report
+
+Just clone above repo, then:
+ - run `npm install && npm run build`
+ - review `./resources/js/routes/wayfinder-bugs/index.ts` and look at the signatures of `show.url` and `bugFix.url`
+ - `show.url` doesn't support an object + primary key, since the route handler uses camelCase `$wayfinderBug` param
+ - `bugFix.url` does support an object + primary key, since the route handler uses snake_case `$wayfinder_bug` param
+
+To recreate from scratch:
+
 ```sh
 # make sure to have php, composer, laravel/installer, and npm pre-installed
 laravel new wayfinder-bug-report --vue -n
@@ -23,7 +33,7 @@ php artisan make:model -cmr WayfinderBug # A model with a resource-controller an
 npm run build
 ```
 
-Review `./resources/js/routes/wayfinder-bugs/index.ts` and every handler that takes `wayfinder_bug` as a route param only handles a string or number value.
+Review `./resources/js/routes/wayfinder-bugs/index.ts` and every handler that takes `wayfinder_bug` as a route param only handles a string or number value. For example - `show`:
 
 ```ts
 /**
@@ -37,7 +47,7 @@ export const show = (args: { wayfinder_bug: string | number } | [wayfinder_bug: 
 })
 ```
 
-The `url` function is "correctly" handling only the possible variants of string and number:
+The `show.url` function is "correctly" handling only the possible variants of string and number:
 
 ```ts
 /**
@@ -84,7 +94,7 @@ export const bugFix = (args: { wayfinder_bug: string | number | { id: string | n
 })
 ```
 
-The `url` function handles the `object` case as well:
+The `bugFix.url` function handles the `object` case as well:
 
 ```ts
 /**
