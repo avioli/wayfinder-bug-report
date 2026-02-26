@@ -37,6 +37,37 @@ export const show = (args: { wayfinder_bug: string | number } | [wayfinder_bug: 
 })
 ```
 
+The `url` function is "correctly" handling only the possible variants of string and number:
+
+```ts
+/**
+* @see \App\Http\Controllers\WayfinderBugController::show
+* @see app/Http/Controllers/WayfinderBugController.php:37
+* @route '/wayfinder-bugs/{wayfinder_bug}'
+*/
+show.url = (args: { wayfinder_bug: string | number } | [wayfinder_bug: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { wayfinder_bug: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            wayfinder_bug: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        wayfinder_bug: args.wayfinder_bug,
+    }
+
+    return show.definition.url
+            .replace('{wayfinder_bug}', parsedArgs.wayfinder_bug.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+```
+
 Change any handler's parameter from `$wayfinderBug` to `$wayfinder_bug` and run `npm run build` - now that route handler also takes an object with an `id`, since the model and its key were resolved correctly.
 
 I've added a `bugFix` route handler to demonstrate. The resulting wayfinder route has the expected signature:
@@ -51,4 +82,41 @@ export const bugFix = (args: { wayfinder_bug: string | number | { id: string | n
     url: bugFix.url(args, options),
     method: 'get',
 })
+```
+
+The `url` function handles the `object` case as well:
+
+```ts
+/**
+* @see \App\Http\Controllers\WayfinderBugController::bugFix
+* @see app/Http/Controllers/WayfinderBugController.php:42
+* @route '/wayfinder-bugs/{wayfinder_bug}/bugfix'
+*/
+bugFix.url = (args: { wayfinder_bug: string | number | { id: string | number } } | [wayfinder_bug: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { wayfinder_bug: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { wayfinder_bug: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            wayfinder_bug: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        wayfinder_bug: typeof args.wayfinder_bug === 'object'
+        ? args.wayfinder_bug.id
+        : args.wayfinder_bug,
+    }
+
+    return bugFix.definition.url
+            .replace('{wayfinder_bug}', parsedArgs.wayfinder_bug.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
 ```
