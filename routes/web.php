@@ -18,4 +18,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 });
 
+Route::resource('wayfinder-bugs', WayfinderBugController::class);
+
 require __DIR__.'/settings.php';
